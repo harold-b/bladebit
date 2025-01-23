@@ -9,9 +9,12 @@
 GpuQueue::GpuQueue( Kind kind ) : _kind( kind )
     , _bufferReadySignal( BBCU_BUCKET_COUNT )
 {
-    CudaErrCheck( cudaStreamCreateWithFlags( &_stream        , cudaStreamNonBlocking ) );
-    CudaErrCheck( cudaStreamCreateWithFlags( &_preloadStream , cudaStreamNonBlocking ) );
-    CudaErrCheck( cudaStreamCreateWithFlags( &_callbackStream, cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 62)
+CudaErrCheck( cudaStreamCreateWithFlags( &_stream        , cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 63)
+CudaErrCheck( cudaStreamCreateWithFlags( &_preloadStream , cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 64)
+CudaErrCheck( cudaStreamCreateWithFlags( &_callbackStream, cudaStreamNonBlocking ) );
 
     _queueThread.Run( QueueThreadEntryPoint, this );
 }
@@ -168,14 +171,19 @@ struct IGpuBuffer* GpuQueue::CreateGpuBuffer( const GpuStreamDescriptor& desc, b
 
         for( int32 i = 0; i < desc.bufferCount; i++ )
         {
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->events[i]         , cudaEventDisableTiming ) );
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->completedEvents[i], cudaEventDisableTiming ) );
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->readyEvents[i]    , cudaEventDisableTiming ) );
-            // CudaErrCheck( cudaEventCreateWithFlags( &buf->preloadEvents[i]  , cudaEventDisableTiming ) );
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->pinnedEvent[i]  , cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 65)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->events[i]         , cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 66)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->completedEvents[i], cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 67)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->readyEvents[i]    , cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 68)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->pinnedEvent[i]  , cudaEventDisableTiming ) );
 
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->callbackLockEvent     , cudaEventDisableTiming ) );
-            CudaErrCheck( cudaEventCreateWithFlags( &buf->callbackCompletedEvent, cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 69)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->callbackLockEvent     , cudaEventDisableTiming ) );
+            Log::Line( "Marker Set to %d", 70)
+CudaErrCheck( cudaEventCreateWithFlags( &buf->callbackCompletedEvent, cudaEventDisableTiming ) );
             
             buf->deviceBuffer[i] = devBuffers[i];
             buf->pinnedBuffer[i] = pinnedBuffers[i];
@@ -241,14 +249,17 @@ void GpuQueue::DispatchHostFunc( GpuCallbackDispath func, cudaStream_t stream, c
     // #MAYBE: Perhaps support having multiple callback streams, and multiple copy streams.
 
     // Signal from the work stream into the callback stream that we are ready for callback
-    CudaErrCheck( cudaEventRecord( lockEvent, stream ) );
+    Log::Line( "Marker Set to %d", 71)
+CudaErrCheck( cudaEventRecord( lockEvent, stream ) );
 
     // Wait on the callback stream until it's ready to dsitpatch
-    CudaErrCheck( cudaStreamWaitEvent( _callbackStream, lockEvent ) );
+    Log::Line( "Marker Set to %d", 72)
+CudaErrCheck( cudaStreamWaitEvent( _callbackStream, lockEvent ) );
 
     // #MAYBE: Use a bump allocator perhaps later to avoid locking here by new/delete if needed for performance.
     auto* fnCpy = new std::function<void()>( std::move( func ) );
-    CudaErrCheck( cudaLaunchHostFunc( _callbackStream, []( void* userData ){
+    Log::Line( "Marker Set to %d", 73)
+CudaErrCheck( cudaLaunchHostFunc( _callbackStream, []( void* userData ){
 
         auto& fn = *reinterpret_cast<std::function<void()>*>( userData );
         fn();
@@ -257,10 +268,12 @@ void GpuQueue::DispatchHostFunc( GpuCallbackDispath func, cudaStream_t stream, c
     }, fnCpy ) );
 
     // Signal from the callback stream that the callback finished
-    CudaErrCheck( cudaEventRecord( completedEvent, _callbackStream ) );
+    Log::Line( "Marker Set to %d", 74)
+CudaErrCheck( cudaEventRecord( completedEvent, _callbackStream ) );
 
     // Wait on work stream for the callback to complete
-    CudaErrCheck( cudaStreamWaitEvent( stream, completedEvent ) );
+    Log::Line( "Marker Set to %d", 75)
+CudaErrCheck( cudaStreamWaitEvent( stream, completedEvent ) );
 }
 
 size_t GpuQueue::CalculateSliceSizeFromDescriptor( const GpuStreamDescriptor& desc )

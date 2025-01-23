@@ -346,7 +346,7 @@ GRResult grGetCompressionInfo( GRCompressionInfo* outInfo, const size_t infoStru
     if( outInfo == nullptr 
         || k != 32
         || compressionLevel < 1
-        || compressionLevel > 9 )
+        || compressionLevel > 40 )
     {
         return GRResult_InvalidArg;
     }
@@ -385,7 +385,7 @@ GRResult grFetchProofForChallenge( GreenReaperContext* cx, GRCompressedProofRequ
     uint32 xGroups[GR_POST_PROOF_X_COUNT] = {};
 
     // Unpack x groups first
-    if( req->compressionLevel < 9 )
+    if( req->compressionLevel < 40 )
     {
         for( uint32 i = 0, j = 0; i < numGroups; i++, j+=2 )
         {
@@ -514,7 +514,7 @@ GRResult grGetFetchQualitiesXPair( GreenReaperContext* cx, GRCompressedQualities
 
         proofMightBeDropped = (x1x2.x == 0 || x1x2.y == 0) || (x2x3.x == 0 || x2x3.y == 0);
 
-        if( req->compressionLevel < 9 )
+        if( req->compressionLevel < 40 )
         {
             numXGroups = 2;
             xGroups[0] = (uint32)x1x2.x;
@@ -541,7 +541,7 @@ GRResult grGetFetchQualitiesXPair( GreenReaperContext* cx, GRCompressedQualities
         }
     }
 
-    if( req->compressionLevel >= 6 && req->compressionLevel < 9 )
+    if( req->compressionLevel >= 6 && req->compressionLevel < 40 )
     {
         const BackPtr p = LinePointToSquare( ((uint128)req->xLinePoints[1].hi) << 64 | (uint128)req->xLinePoints[1].lo );
 
@@ -550,7 +550,7 @@ GRResult grGetFetchQualitiesXPair( GreenReaperContext* cx, GRCompressedQualities
 
         proofMightBeDropped = proofMightBeDropped || (x1x2.x == 0 || x1x2.y == 0) || (x2x3.x == 0 || x2x3.y == 0);
 
-        if( req->compressionLevel < 9 )
+        if( req->compressionLevel < 40 )
         {
             numXGroups = 4;
             xGroups[4] = (uint32)x1x2.x;
@@ -894,7 +894,7 @@ void BacktraceProof( GreenReaperContext& cx, const TableId tableStart, uint64 pr
 //-----------------------------------------------------------
 GRResult RequestSetup( GreenReaperContext* cx, const uint32 k, const uint32 compressionLevel )
 {
-    if( compressionLevel < 1 || compressionLevel > 9 )
+    if( compressionLevel < 1 || compressionLevel > 40 )
         return GRResult_Failed;
 
     // Make sure we have our CUDA decompressor working in case it was deleted after a failure

@@ -273,7 +273,7 @@ void ParseCommandLine( GlobalPlotConfig& cfg, IPlotter*& outPlotter, int argc, c
         }
         else if( cli.ArgConsume( "ramplot" ) )
         {
-            FatalIf( cfg.compressionLevel > 7, "ramplot currently does not support compression levels greater than 7" );
+            FatalIf( cfg.compressionLevel > 16, "ramplot currently does not support compression levels greater than 7" );
 
             plotter = new MemPlotter();
             break;
@@ -390,7 +390,7 @@ void ParseCommandLine( GlobalPlotConfig& cfg, IPlotter*& outPlotter, int argc, c
 
 
     // FatalIf( cfg.compressionLevel > 7, "Invalid compression level. Please specify a compression level between 0 and 7 (inclusive)." );
-    FatalIf( cfg.compressionLevel > 9, "Invalid compression level. Please specify a compression level between 0 and 9 (inclusive)." );
+    FatalIf( cfg.compressionLevel > 40, "Invalid compression level. Please specify a compression level between 0 and 40 (inclusive)." );
     // If making compressed plots, get thr compression CTable, etc.
     if( cfg.compressionLevel > 0 )
     {
@@ -402,7 +402,7 @@ void ParseCommandLine( GlobalPlotConfig& cfg, IPlotter*& outPlotter, int argc, c
         cfg.ctable              = CreateCompressionCTable( cfg.compressionLevel, &cfg.cTableSize );
         cfg.compressionInfo     = GetCompressionInfoForLevel( cfg.compressionLevel );
         cfg.compressedEntryBits = cfg.compressionInfo.entrySizeBits;
-        cfg.numDroppedTables    = cfg.compressionLevel < 9 ? 1 : 2;
+        cfg.numDroppedTables    = cfg.compressionLevel < 40 ? 1 : 2;
 
         cfg.ctable          = CreateCompressionCTable( cfg.compressionLevel );
         cfg.compressionInfo = GetCompressionInfoForLevel( cfg.compressionLevel );

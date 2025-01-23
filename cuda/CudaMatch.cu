@@ -564,17 +564,6 @@ cudaError CudaHarvestMatchK32(
     HarvestMatchK32Kernel<<<kblocks, kthreads, 0, stream>>>(
         devOutPairs, devMatchCount, devYEntries, entryCount, matchOffset );
 
-// #if _DEBUG
-//     uint32 matchCount = 0;
-//     CudaErrCheck( cudaMemcpyAsync( &matchCount, devMatchCount, sizeof( uint32 ) , cudaMemcpyDeviceToHost, stream ) );
-//     CudaErrCheck( cudaStreamSynchronize( stream ) );
-//     CudaErrCheck( cudaStreamSynchronize( stream ) );
-
-//     Pair* matches = new Pair[matchCount];
-//     CudaErrCheck( cudaMemcpyAsync( matches, devOutPairs, sizeof( Pair ) * matchCount , cudaMemcpyDeviceToHost, stream ) );
-//     CudaErrCheck( cudaStreamSynchronize( stream ) );
-//     CudaErrCheck( cudaStreamSynchronize( stream ) );
-// #endif
 
     return cudaSuccess;
 }
@@ -603,8 +592,10 @@ void CudaMatchBucketizedK32(
         CudaSetFirstAndLastGroup<<<1,2,0,stream>>>( tmpGroupCounts, entryCount );
     }
 
-    CudaErrCheck( cudaMemsetAsync( cx.devGroupCount, 0, sizeof( uint32 ), stream ) );
-    CudaErrCheck( cudaMemsetAsync( cx.devMatchCount, 0, sizeof( uint32 ), stream ) );
+    Log::Line( "Marker Set to %d", 1)
+CudaErrCheck( cudaMemsetAsync( cx.devGroupCount, 0, sizeof( uint32 ), stream ) );
+    Log::Line( "Marker Set to %d", 2)
+CudaErrCheck( cudaMemsetAsync( cx.devMatchCount, 0, sizeof( uint32 ), stream ) );
     ScanGroupsCudaK32Bucket<<<kscanblocks, BBCU_SCAN_GROUP_THREADS, 0, stream>>>( devY, tmpGroupCounts+2, cx.devGroupCount, entryCount, bucketMask );
 
     byte*  sortTmpAlloc = (byte*)( tmpGroupCounts + BBCU_MAX_GROUP_COUNT );
@@ -621,49 +612,3 @@ void CudaMatchBucketizedK32(
     MatchCudaK32Bucket<<<BBCU_MAX_GROUP_COUNT, BBCU_THREADS_PER_MATCH_GROUP, 0, stream>>>( bucketMask, entryCount, cx.devGroupCount, devY, cx.devGroupBoundaries, cx.devMatchCount, cx.devMatches );
 }
 
-//-----------------------------------------------------------
-// cudaError CudaHarvestMatchK32WithGroupScan(
-//     Pair*         devOutPairs,
-//     uint32*       devMatchCount,
-//     const uint32  maxMatches,
-//     uint32*       devGroupIndices,
-//     uint32*       devGroupIndicesTemp,
-//     const uint32  maxGroups,
-//     void*         sortBuffer,
-//     const size_t  sortBufferSize,
-//     const uint64* devYEntries,
-//     const uint32  entryCount,
-//     const uint32  matchOffset,
-//     cudaStream_t  stream )
-// {
-//     // Scan for BC groups
-//     {
-//         const uint32 kblocks  = 0;
-//         const uint32 kthreads = 0;
-
-
-//     // constexpr uint32 kscanblocks = CuCDiv( BBCU_BUCKET_ALLOC_ENTRY_COUNT, BBCU_SCAN_GROUP_THREADS );
-//         // Initialize the entries to the max value so that they are not included in the sort
-//         CudaInitGroups<<<kblocks, kthreads, 0, stream>>>( devGroupIndicesTemp, entryCount );
-//         // CudaInitGroupsBucket<<<kscanblocks, BBCU_SCAN_GROUP_THREADS, 0, stream>>>( tmpGroupCounts );
-
-//         // Add first group and last ghost group
-//         CudaSetFirstAndLastGroup<<<1,2,0,stream>>>( tmpGroupCounts, entryCount );
-//     }
-
-//     CudaErrCheck( cudaMemsetAsync( cx.devGroupCount, 0, sizeof( uint32 ), stream ) );
-//     CudaErrCheck( cudaMemsetAsync( cx.devMatchCount, 0, sizeof( uint32 ), stream ) );
-//     ScanGroupsCudaK32Bucket<<<kscanblocks, BBCU_SCAN_GROUP_THREADS, 0, stream>>>( devY, tmpGroupCounts+2, cx.devGroupCount, entryCount, bucketMask );
-
-//     byte*  sortTmpAlloc = (byte*)( tmpGroupCounts + BBCU_MAX_GROUP_COUNT );
-//     size_t sortTmpSize  = ( BBCU_BUCKET_ALLOC_ENTRY_COUNT - BBCU_MAX_GROUP_COUNT ) * sizeof( uint32 );
-
-// #if _DEBUG
-//     size_t sortSize = 0;
-//     cub::DeviceRadixSort::SortKeys<uint32, uint32>( nullptr, sortSize, nullptr, nullptr, BBCU_MAX_GROUP_COUNT, 0, 32 );
-//     ASSERT( sortSize <= sortTmpSize );
-// #endif
-
-//     cub::DeviceRadixSort::SortKeys<uint32, uint32>( sortTmpAlloc, sortTmpSize, tmpGroupCounts, cx.devGroupBoundaries, BBCU_MAX_GROUP_COUNT, 0, 32, stream );
-
-// }

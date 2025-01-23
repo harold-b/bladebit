@@ -1137,7 +1137,7 @@ bool DecompressProof( const byte plotId[BB_PLOT_ID_LEN], const uint32 compressio
     req.compressionLevel = compressionLevel;
     req.plotId           = plotId;
 
-    const uint32 compressedProofCount = compressionLevel < 9 ? PROOF_X_COUNT / 2 : PROOF_X_COUNT / 4;
+    const uint32 compressedProofCount = compressionLevel < 40 ? PROOF_X_COUNT / 2 : PROOF_X_COUNT / 4;
 
     for( uint32 i = 0; i < compressedProofCount; i++ )
         req.compressedProof[i] = compressedProof[i];
@@ -1170,7 +1170,7 @@ bool FetchProof( PlotReader& plot, uint64 t6LPIndex, uint64 fullProofXs[PROOF_X_
 
     const bool    isCompressed = plot.PlotFile().CompressionLevel() > 0;
     const TableId endTable     = !isCompressed ? TableId::Table1 :
-                                    plot.PlotFile().CompressionLevel() < 9 ? 
+                                    plot.PlotFile().CompressionLevel() < 40 ?
                                     TableId::Table2 : TableId::Table3;
 
     for( TableId table = TableId::Table6; table >= endTable; table-- )

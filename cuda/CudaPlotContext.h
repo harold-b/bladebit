@@ -576,8 +576,10 @@ inline void DbgPrintDeviceHash( const char* msg, const void* ptr, const size_t s
     byte hash[32];
 
     void* hostBuffer = bbvirtallocboundednuma<byte>( size );
-    CudaErrCheck( cudaMemcpyAsync( hostBuffer, ptr, size, cudaMemcpyDeviceToHost, stream ) );
-    CudaErrCheck( cudaStreamSynchronize( stream ) );
+    Log::Line( "Marker Set to %d", 5)
+CudaErrCheck( cudaMemcpyAsync( hostBuffer, ptr, size, cudaMemcpyDeviceToHost, stream ) );
+    Log::Line( "Marker Set to %d", 6)
+CudaErrCheck( cudaStreamSynchronize( stream ) );
 
     blake3_hasher hasher;
     blake3_hasher_init( &hasher );

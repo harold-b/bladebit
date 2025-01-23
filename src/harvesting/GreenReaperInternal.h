@@ -26,6 +26,6 @@ inline uint64 GetEntriesPerBucketForCompressionLevel( const uint32 k, const uint
 
 inline uint64 GetMaxTablePairsForCompressionLevel( const uint32 k, const uint32 cLevel )
 {
-    const double factor = cLevel >= 9 ? GR_MAX_MATCHES_MULTIPLIER_2T_DROP : GR_MAX_MATCHES_MULTIPLIER;
+    const double factor = cLevel >= 40 ? GR_MAX_MATCHES_MULTIPLIER_2T_DROP : GR_MAX_MATCHES_MULTIPLIER;
     return (uint64)( GetEntriesPerBucketForCompressionLevel( k, cLevel ) * factor ) * (uint64)GR_MAX_BUCKETS;
 }

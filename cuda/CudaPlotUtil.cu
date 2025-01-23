@@ -21,7 +21,8 @@ void CudaK32PlotGenSortKey( const uint32 entryCount, uint32* devKey, cudaStream_
 
     GenSortKey<<<blockCount, threadsPerBlock, 0, stream>>>( entryCount, devKey );
     if( synchronize )
-        CudaErrCheck( cudaStreamSynchronize( stream ) );
+        Log::Line( "Marker Set to %d", 46)
+CudaErrCheck( cudaStreamSynchronize( stream ) );
     
 }
 
@@ -48,7 +49,8 @@ void CudaK32PlotSortByKey( const uint32 entryCount, const uint32* devKey, const 
 
     SortByKey<T><<<blockCount, threadsPerBlock, 0, stream>>>( entryCount, devKey, devInput, devOutput );
     if( synchronize )
-        CudaErrCheck( cudaStreamSynchronize( stream ) );
+        Log::Line( "Marker Set to %d", 47)
+CudaErrCheck( cudaStreamSynchronize( stream ) );
 }
 
 //-----------------------------------------------------------
