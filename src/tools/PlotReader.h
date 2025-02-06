@@ -6,6 +6,7 @@
 #include "io/FileStream.h"
 #include "util/Util.h"
 #include <vector>
+#include <memory>
 
 class CPBitReader;
 
@@ -128,9 +129,10 @@ protected:
 class MemoryPlot : public IPlotFile
 {
 public:
-    MemoryPlot();
-    MemoryPlot( const MemoryPlot& plotFile );
-    ~MemoryPlot();
+    MemoryPlot() = default;
+    MemoryPlot( const MemoryPlot& plotFile ) = default;
+    MemoryPlot( MemoryPlot&& plotFile ) = default;
+    ~MemoryPlot() = default;
 
     bool Open( const char* path ) override;
     bool IsOpen() const override;
@@ -144,7 +146,9 @@ public:
     int GetError() override;
 
 private:
-    Span<byte>  _bytes;  // Plot bytes
+
+    std::shared_ptr<byte[]> _buffer;
+    size_t      _size     = 0;
     int         _err      = 0;
     ssize_t     _position = 0;
     std::string _plotPath = "";

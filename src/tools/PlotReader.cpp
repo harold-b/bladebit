@@ -983,46 +983,15 @@ GreenReaperContext* PlotReader::GetGRContext()
     return _grContext;
 }
 
+struct VirtualFreeDeleter {
+    void operator()(byte* ptr) const {
+        SysHost::VirtualFree( ptr );
+    }
+};
+
 ///
 /// Memory Plot
 ///
-//-----------------------------------------------------------
-MemoryPlot::MemoryPlot()
-    : _bytes( nullptr, 0 )
-{}
-
-//-----------------------------------------------------------
-MemoryPlot::MemoryPlot( const MemoryPlot& plotFile )
-{
-    _bytes    = plotFile._bytes;
-    _err      = 0;
-    _position = 0;
-
-    int headerError = 0;
-    if( !ReadHeader( headerError ) )
-    {
-        if( headerError )
-            _err = headerError;
-
-        if( _err == 0 )
-            _err = -1; // #TODO: Set generic plot header read error
-
-        _bytes.values = nullptr;
-        return;
-    }
-
-    _plotPath = plotFile._plotPath;
-}
-
-//-----------------------------------------------------------
-MemoryPlot::~MemoryPlot()
-{
-    // #TODO: Don't destroy bytes unless we own them. Use a shared ptr here.
-    if( _bytes.values )
-        SysHost::VirtualFree( _bytes.values );
-
-    _bytes = Span<byte>( nullptr, 0 );
-}
 
 //-----------------------------------------------------------
 bool MemoryPlot::Open( const char* path )
@@ -1055,7 +1024,8 @@ bool MemoryPlot::Open( const char* path )
     // we have any remainder that does not align to a block
     const size_t allocSize = RoundUpToNextBoundary( (size_t)plotSize, (int)file.BlockSize() ) + file.BlockSize();
 
-    byte* bytes = (byte*)SysHost::VirtualAlloc( allocSize );
+    auto bytes = std::shared_ptr<byte[]>(
+        (byte*)SysHost::VirtualAlloc( allocSize ), VirtualFreeDeleter());
     if( !bytes )
     {
         _err = -1;      // #TODO: Assign an actual user error.
@@ -1066,7 +1036,7 @@ bool MemoryPlot::Open( const char* path )
     size_t readSize      = RoundUpToNextBoundary( plotSize, (int)file.BlockSize() );/// file.BlockSize() * file.BlockSize();
     // size_t readRemainder = plotSize - readSize;
     const size_t readEnd = readSize - plotSize;
-    byte*  reader        = bytes;
+    byte*  reader        = bytes.get();
     
     // Read blocks
     while( readSize > readEnd )
@@ -1077,8 +1047,6 @@ bool MemoryPlot::Open( const char* path )
         if( read < 0 )
         {
             _err = file.GetError();
-            SysHost::VirtualFree( bytes );
-
             return false;
         }
 
@@ -1097,8 +1065,6 @@ bool MemoryPlot::Open( const char* path )
     //     if( read < 0 )
     //     {
     //         _err = file.GetError();
-    //         SysHost::VirtualFree( bytes );
-
     //         return false;
     //     }
 
@@ -1106,7 +1072,8 @@ bool MemoryPlot::Open( const char* path )
     //         memmove( reader, block, readRemainder );
     // }
 
-    _bytes = Span<byte>( bytes, (size_t)plotSize );
+    _buffer = std::move(bytes);
+    _size = plotSize;
 
     // Read the header
     int headerError = 0;
@@ -1118,13 +1085,13 @@ bool MemoryPlot::Open( const char* path )
         if( _err == 0 )
             _err = -1; // #TODO: Set generic plot header read error
 
-        _bytes.values = nullptr;
-        SysHost::VirtualFree( bytes );
+        _buffer.reset();
+        _size = 0;
         return false;
     }
 
     // Lock the plot memory into read-only mode
-    SysHost::VirtualProtect( bytes, allocSize, VProtect::Read );
+    SysHost::VirtualProtect( _buffer.get(), allocSize, VProtect::Read );
 
     // Save data, good to go
     _plotPath = path;
@@ -1135,13 +1102,13 @@ bool MemoryPlot::Open( const char* path )
 //-----------------------------------------------------------
 bool MemoryPlot::IsOpen() const
 {
-    return _bytes.values != nullptr;
+    return _buffer.get();
 }
 
 //-----------------------------------------------------------
 size_t MemoryPlot::PlotSize() const
 {
-    return _bytes.length;
+    return _size;
 }
 
 //-----------------------------------------------------------
@@ -1160,7 +1127,7 @@ bool MemoryPlot::Seek( SeekOrigin origin, int64 offset )
             break;
 
         case SeekOrigin::End:
-            absPosition = (ssize_t)_bytes.length + offset;
+            absPosition = (ssize_t)_size + offset;
             break;
     
         default:
@@ -1168,7 +1135,7 @@ bool MemoryPlot::Seek( SeekOrigin origin, int64 offset )
             return false;
     }
 
-    if( absPosition < 0 || absPosition > (ssize_t)_bytes.length )
+    if( absPosition < 0 || absPosition > (ssize_t)_size )
     {
         _err =  -1;     // #TODO: Set proper user error.
         return false;
@@ -1188,13 +1155,13 @@ ssize_t MemoryPlot::Read( size_t size, void* buffer )
 
     const size_t endPos = (size_t)_position + size;
 
-    if( endPos > _bytes.length )
+    if( endPos > _size )
     {
         _err = -1; // #TODO: Set proper user error
         return false;
     }
 
-    memcpy( buffer, _bytes.values + _position, size );
+    memcpy( buffer, _buffer.get() + _position, size );
     _position = (ssize_t)endPos;
 
     return (ssize_t)size;
