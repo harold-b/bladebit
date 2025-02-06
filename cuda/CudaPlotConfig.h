@@ -5,7 +5,7 @@
 #define BBCU_DEFAULT_GPU_BUFFER_COUNT 2
 
 #define BBCU_K                          (32u)
-#define BBCU_BUCKET_COUNT               (128u)
+#define BBCU_BUCKET_COUNT               (256u)
 #define BBC_Y_BITS                      (BBCU_K+kExtraBits)
 #define BBC_Y_BITS_T7                   (BBCU_K)
 #define BBC_BUCKET_BITS                 (CuBBLog2( BBCU_BUCKET_COUNT ))
