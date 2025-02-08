@@ -118,7 +118,7 @@ sudo apt install -y build-essential cmake libgmp-dev libnuma-dev
 ```
 
 ### Windows
-Must have at least [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) or its build tools installed.
+Must have at least [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) or its build tools installed.
 
 ### macOS
 Must have Xcode or Xcode build tools installed.
