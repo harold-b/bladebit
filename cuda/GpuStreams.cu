@@ -60,26 +60,32 @@ void GpuUploadBuffer::Upload( const void* hostBuffer, size_t size, cudaStream_t 
     {
         // Copy from unpinned to pinned first
         // #TODO: This should be done in a different backgrund host-to-host copy stream
-        CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->pinnedEvent[index] ) );
-        CudaErrCheck( cudaMemcpyAsync( self->pinnedBuffer[index], hostBuffer, size, cudaMemcpyHostToHost, uploadStream ) );
+        Log::Line( "Marker Set to %d", 76)
+CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->pinnedEvent[index] ) );
+        Log::Line( "Marker Set to %d", 77)
+CudaErrCheck( cudaMemcpyAsync( self->pinnedBuffer[index], hostBuffer, size, cudaMemcpyHostToHost, uploadStream ) );
 
         hostBuffer = self->pinnedBuffer[index];
     }
 
     // Ensure the device buffer is ready for use
-    CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->deviceEvents[index] ) );
+    Log::Line( "Marker Set to %d", 78)
+CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->deviceEvents[index] ) );
 
     // Upload to the device buffer
-    CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], hostBuffer, size, cudaMemcpyHostToDevice, uploadStream ) );
+    Log::Line( "Marker Set to %d", 79)
+CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], hostBuffer, size, cudaMemcpyHostToDevice, uploadStream ) );
 
     if( !isDirect )
     {
         // Signal that the pinned buffer is ready for re-use
-        CudaErrCheck( cudaEventRecord( self->pinnedEvent[index], uploadStream ) );
+        Log::Line( "Marker Set to %d", 80)
+CudaErrCheck( cudaEventRecord( self->pinnedEvent[index], uploadStream ) );
     }
 
     // Signal work stream that the device buffer is ready to be used
-    CudaErrCheck( cudaEventRecord( self->readyEvents[index], uploadStream ) );
+    Log::Line( "Marker Set to %d", 81)
+CudaErrCheck( cudaEventRecord( self->readyEvents[index], uploadStream ) );
 }
 
 void GpuUploadBuffer::UploadAndPreLoad( void* hostBuffer, const size_t size, const void* copyBufferSrc, const size_t copySize )
@@ -99,7 +105,6 @@ void GpuUploadBuffer::UploadAndPreLoad( void* hostBuffer, const size_t size, con
     // cpy.copy.size       = copySize;
 
     // // Launch copy command
-    // CudaErrCheck( cudaLaunchHostFunc( self->queue->GetStream(), []( void* userData ){
 
     //     const CopyInfo& c = *reinterpret_cast<CopyInfo*>( userData );
     //     IGpuBuffer* self = c.self;
@@ -165,7 +170,8 @@ void GpuUploadBuffer::UploadArray( const void* hostBuffer, uint32 length, uint32
         const auto copyMode  = isDirect ? cudaMemcpyHostToDevice : cudaMemcpyHostToHost;
 
         // Wait on device or pinned buffer to be ready (depending if a direct copy or not)
-        CudaErrCheck( cudaStreamWaitEvent( uploadStream, waitEvent ) );
+        Log::Line( "Marker Set to %d", 82)
+CudaErrCheck( cudaStreamWaitEvent( uploadStream, waitEvent ) );
 
         const byte*   src   = (byte*)hostBuffer;
               byte*   dst   = (byte*)( isDirect ? self->deviceBuffer[index] : self->pinnedBuffer[index] );
@@ -175,7 +181,8 @@ void GpuUploadBuffer::UploadArray( const void* hostBuffer, uint32 length, uint32
         {
             const size_t size = *sizes * (size_t)elementSize;
 
-            CudaErrCheck( cudaMemcpyAsync( dst, src, size, copyMode, uploadStream ) );
+            Log::Line( "Marker Set to %d", 83)
+CudaErrCheck( cudaMemcpyAsync( dst, src, size, copyMode, uploadStream ) );
 
             dst    += size;
             src    += srcStride;
@@ -200,15 +207,19 @@ void GpuUploadBuffer::UploadArray( const void* hostBuffer, uint32 length, uint32
         }
 
         // #TODO: This should be done in a copy stream to perform the copies in the background
-        CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->deviceEvents[index] ) );
-        CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], hostBuffer, totalBufferSize, cudaMemcpyHostToDevice, uploadStream ) );
+        Log::Line( "Marker Set to %d", 84)
+CudaErrCheck( cudaStreamWaitEvent( uploadStream, self->deviceEvents[index] ) );
+        Log::Line( "Marker Set to %d", 84)
+CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], hostBuffer, totalBufferSize, cudaMemcpyHostToDevice, uploadStream ) );
 
         if( !self->diskBuffer )
-            CudaErrCheck( cudaEventRecord( self->pinnedEvent[index], uploadStream ) );
+            Log::Line( "Marker Set to %d", 85)
+CudaErrCheck( cudaEventRecord( self->pinnedEvent[index], uploadStream ) );
     }
 
     // Signal work stream that the device buffer is ready to be used
-    CudaErrCheck( cudaEventRecord( self->readyEvents[index], uploadStream ) );
+    Log::Line( "Marker Set to %d", 86)
+CudaErrCheck( cudaEventRecord( self->readyEvents[index], uploadStream ) );
 }
 
 void GpuUploadBuffer::UploadArrayForIndex( const uint32 index, const void* hostBuffer, uint32 length, 
@@ -219,7 +230,8 @@ void GpuUploadBuffer::UploadArrayForIndex( const uint32 index, const void* hostB
     auto stream = self->queue->GetStream();
 
     // Ensure the device buffer is ready for use
-    CudaErrCheck( cudaStreamWaitEvent( stream, self->events[index] ) );
+    Log::Line( "Marker Set to %d", 87)
+CudaErrCheck( cudaStreamWaitEvent( stream, self->events[index] ) );
 
     // Perform uploads
     //size_t deviceCopySize = 0;
@@ -230,7 +242,8 @@ void GpuUploadBuffer::UploadArrayForIndex( const uint32 index, const void* hostB
     {
         const size_t size = *counts * (size_t)elementSize;
         //memcpy( dst, src, size );
-        CudaErrCheck( cudaMemcpyAsync( dst, src, size, cudaMemcpyHostToDevice, stream ) );
+        Log::Line( "Marker Set to %d", 88)
+CudaErrCheck( cudaMemcpyAsync( dst, src, size, cudaMemcpyHostToDevice, stream ) );
 
         //deviceCopySize += size;
 
@@ -240,10 +253,12 @@ void GpuUploadBuffer::UploadArrayForIndex( const uint32 index, const void* hostB
     }
 
     // Copy to device buffer
-    //CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], cpy.dstBuffer, deviceCopySize, cudaMemcpyHostToDevice, _stream ) );
+    //Log::Line( "Marker Set to %d", 89)
+CudaErrCheck( cudaMemcpyAsync( self->deviceBuffer[index], cpy.dstBuffer, deviceCopySize, cudaMemcpyHostToDevice, _stream ) );
 
     // Signal work stream that the device buffer is ready to be used
-    CudaErrCheck( cudaEventRecord( self->readyEvents[index], stream ) );
+    Log::Line( "Marker Set to %d", 90)
+CudaErrCheck( cudaEventRecord( self->readyEvents[index], stream ) );
 }
 
 void GpuUploadBuffer::Upload( const void* hostBuffer, const size_t size )
@@ -270,7 +285,8 @@ void* GpuUploadBuffer::GetUploadedDeviceBuffer( cudaStream_t workStream )
     const uint32 index = self->completedSequence % self->bufferCount;
     self->completedSequence++;
 
-    CudaErrCheck( cudaStreamWaitEvent( workStream, self->readyEvents[index] ) );
+    Log::Line( "Marker Set to %d", 91)
+CudaErrCheck( cudaStreamWaitEvent( workStream, self->readyEvents[index] ) );
 
     return self->deviceBuffer[index];
 }
@@ -284,7 +300,8 @@ void GpuUploadBuffer::ReleaseDeviceBuffer( cudaStream_t workStream )
     const uint32 index = self->lockSequence % self->bufferCount;
     self->lockSequence++;
 
-    CudaErrCheck( cudaEventRecord( self->deviceEvents[index], workStream ) );
+    Log::Line( "Marker Set to %d", 92)
+CudaErrCheck( cudaEventRecord( self->deviceEvents[index], workStream ) );
 }
 
 void GpuUploadBuffer::WaitForPreloadsToComplete()
@@ -342,7 +359,8 @@ DiskBufferBase* GpuUploadBuffer::GetDiskBuffer() const
 void GpuUploadBuffer::CallHostFunctionOnStream( cudaStream_t stream, std::function<void()> func )
 {
     auto* fnCpy = new std::function<void()>( std::move( func ) );
-    CudaErrCheck( cudaLaunchHostFunc( stream, []( void* userData ) {
+    Log::Line( "Marker Set to %d", 93)
+CudaErrCheck( cudaLaunchHostFunc( stream, []( void* userData ) {
 
         auto& fn = *reinterpret_cast<std::function<void()>*>( userData );
         fn();

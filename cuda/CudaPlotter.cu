@@ -216,10 +216,14 @@ void InitContext( CudaK32PlotConfig& cfg, CudaK32PlotContext*& outContext )
 
     CudaInit( cx );
 
-    CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStream , cudaStreamNonBlocking ) );
-    CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamB, cudaStreamNonBlocking ) );
-    CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamC, cudaStreamNonBlocking ) );
-    CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamD, cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 48)
+CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStream , cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 49)
+CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamB, cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 50)
+CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamC, cudaStreamNonBlocking ) );
+    Log::Line( "Marker Set to %d", 51)
+CudaErrCheck( cudaStreamCreateWithFlags( &cx.computeStreamD, cudaStreamNonBlocking ) );
 
     cudaEventCreateWithFlags( &cx.computeEventA, cudaEventDisableTiming );
     cudaEventCreateWithFlags( &cx.computeEventB, cudaEventDisableTiming );
@@ -333,7 +337,8 @@ void CudaInit( CudaK32PlotContext& cx )
     cx.cudaDevice = (int32)cx.cfg.deviceIndex;
 
     cudaDeviceProp* cudaDevProps = new cudaDeviceProp{};
-    CudaErrCheck( cudaGetDeviceProperties( cudaDevProps, cx.cudaDevice ) );
+    Log::Line( "Marker Set to %d", 52)
+CudaErrCheck( cudaGetDeviceProperties( cudaDevProps, cx.cudaDevice ) );
     cx.cudaDevProps = cudaDevProps;
 
     Log::Line( "Selected cuda device %u : %s", cx.cudaDevice, cudaDevProps->name );
@@ -437,7 +442,8 @@ void CudaK32Plotter::Run( const PlotRequest& req )
     const auto& cfg = _cfg;
 
     // Only start profiling from here (don't profile allocations)
-    CudaErrCheck( cudaProfilerStart() );
+    Log::Line( "Marker Set to %d", 53)
+CudaErrCheck( cudaProfilerStart() );
 
     ASSERT( cx.plotWriter == nullptr );
     cx.plotWriter = new PlotWriter( !cfg.gCfg->disableOutputDirectIO );
@@ -595,7 +601,8 @@ void FpTable( CudaK32PlotContext& cx )
     }
 
     // Clear slice counts
-    CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 54)
+CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
 
     // Load initial buckets
     UploadBucketForTable( cx, 0 );
@@ -606,7 +613,8 @@ void FpTable( CudaK32PlotContext& cx )
         FpTableBucket( cx, bucket );
     }
 
-    CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 55)
+CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
 
     // Copy bucket slices to host
     cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, 

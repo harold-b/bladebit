@@ -251,8 +251,8 @@ size_t CalculatePlotSizeBytes( const uint32 k, const uint32 compressionLevel )
 
     const size_t parkSizes[] = {
         0, // Table 1 is dropped
-        compressionLevel >= 9 ? 0 : info.tableParkSize,
-        compressionLevel >= 9 ? info.tableParkSize : CalculateParkSize( TableId::Table3 ),
+        compressionLevel >= 40 ? 0 : info.tableParkSize,
+        compressionLevel >= 40 ? info.tableParkSize : CalculateParkSize( TableId::Table3 ),
         CalculateParkSize( TableId::Table4 ),
         CalculateParkSize( TableId::Table5 ),
         CalculateParkSize( TableId::Table6 ),

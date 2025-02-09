@@ -119,7 +119,8 @@ static void BytefieldToBitfield( CudaK32PlotContext& cx, const byte* bytefield, 
 
     #if DBG_BBCU_P2_COUNT_PRUNED_ENTRIES
         #define G_PRUNED_COUNTS ,cx.phase2->devPrunedCount
-        CudaErrCheck( cudaMemsetAsync( cx.phase2->devPrunedCount, 0, sizeof( uint32 ), stream ) );
+        Log::Line( "Marker Set to %d", 7)
+CudaErrCheck( cudaMemsetAsync( cx.phase2->devPrunedCount, 0, sizeof( uint32 ), stream ) );
     #else
         #define G_PRUNED_COUNTS 
     #endif
@@ -176,7 +177,8 @@ void MarkTable( CudaK32PlotContext& cx, CudaK32Phase2& p2 )
     }
 
     // Zero-out marks
-    CudaErrCheck( cudaMemsetAsync( devLMarks, 0, GetMarkingTableByteSize(), cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 8)
+CudaErrCheck( cudaMemsetAsync( devLMarks, 0, GetMarkingTableByteSize(), cx.computeStream ) );
 
     // Load first bucket's worth of pairs
     LoadPairs( cx, p2, rTable, 0 );
@@ -230,9 +232,12 @@ void MarkTable( CudaK32PlotContext& cx, CudaK32Phase2& p2 )
 #if DBG_BBCU_P2_COUNT_PRUNED_ENTRIES
     {
         uint32 prunedEntryCount = 0;
-        CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
-        CudaErrCheck( cudaMemcpyAsync( &prunedEntryCount, p2.devPrunedCount, sizeof( uint32 ), cudaMemcpyDeviceToHost, cx.computeStream ) );
-        CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
+        Log::Line( "Marker Set to %d", 9)
+CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
+        Log::Line( "Marker Set to %d", 10)
+CudaErrCheck( cudaMemcpyAsync( &prunedEntryCount, p2.devPrunedCount, sizeof( uint32 ), cudaMemcpyDeviceToHost, cx.computeStream ) );
+        Log::Line( "Marker Set to %d", 11)
+CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
 
         const uint64 lEntryCount = cx.tableEntryCounts[(int)lTable];
         Log::Line( "Table %u now has %u / %llu  ( %.2lf%% ) entries.", (uint)lTable+1, 
@@ -245,22 +250,7 @@ void MarkTable( CudaK32PlotContext& cx, CudaK32Phase2& p2 )
         #if _DEBUG
         p2.outMarks.WaitForCompletion();
 
-    //     CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
-    //     CudaErrCheck( cudaStreamSynchronize( cx.gpuDownloadStream[0]->GetStream() ) );
-    //     CudaErrCheck( cudaStreamSynchronize( cx.gpuDownloadStream[1]->GetStream() ) );
-    //     CudaErrCheck( cudaStreamSynchronize( cx.gpuDownloadStream[2]->GetStream() ) );
 
-    //     byte*   hByteField = bbcvirtalloc<byte>( GetMarkingTableByteSize() );
-        // uint64* hBitField  = bbcvirtalloc<uint64>( GetMarkingTableBitFieldSize() );
-    //     uint64* rBitField  = bbcvirtalloc<uint64>( GetMarkingTableBitFieldSize() );
-    //     CudaErrCheck( cudaMemcpyAsync( hByteField, devLMarks, GetMarkingTableByteSize(), cudaMemcpyDeviceToHost, cx.computeStream  ) );
-    //     CudaErrCheck( cudaMemcpyAsync( hBitField, bitfield, GetMarkingTableBitFieldSize(), cudaMemcpyDeviceToHost, cx.computeStream  ) );
-
-    //     if( rTable < TableId::Table7 )
-    //         CudaErrCheck( cudaMemcpyAsync( rBitField, p2.devRMarks, GetMarkingTableBitFieldSize(), cudaMemcpyDeviceToHost, cx.computeStream  ) );
-
-    //     CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
-    //     // (void)p2.outMarks.GetDeviceBuffer();
         uint64* hBitField = cx.hostMarkingTables[(int)lTable];
         
         std::atomic<uint64> bitfieldPrunedEntryCount = 0;
@@ -276,23 +266,10 @@ void MarkTable( CudaK32PlotContext& cx, CudaK32Phase2& p2 )
             uint64 localPrunedEntryCount = 0;
             uint64 rPrunedEntryCount     = 0;
 
-    //         BitField rMarks( rBitField, rEntryCount );
-    //         const byte* bytefield = hByteField;
 
             uint64 count, offset, end;
 
-    //         // Count r entries again to make sure it's still valid
-    //         if( rt < TableId::Table7 )
-    //         {
-    //             GetThreadOffsets( self, rEntryCount, count, offset, end );
-    //             for( uint64 i = offset; i < end; i++ )
-    //             {
-    //                 if( rMarks.Get( i ) )
-    //                     rPrunedEntryCount ++;
-    //             }
-        
-    //             rTablePrunedEntryCount += rPrunedEntryCount;   
-    //         }
+
 
             GetThreadOffsets( self, lEntryCount, count, offset, end );
     //         for( uint64 i = offset; i < end; i++ )

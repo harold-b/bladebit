@@ -61,7 +61,8 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
     const FSE_CTable* hostCTable = !isCompressed ? CTables[(int)lTable] : cx.gCfg->ctable;
 
     // (upload must be loaded before first bucket, on the same stream)
-    CudaErrCheck( cudaMemcpyAsync( s3.devCTable, hostCTable, cTableSize, cudaMemcpyHostToDevice, 
+    Log::Line( "Marker Set to %d", 29)
+CudaErrCheck( cudaMemcpyAsync( s3.devCTable, hostCTable, cTableSize, cudaMemcpyHostToDevice,
                     s3.lpIn.GetQueue()->GetStream() ) );
 
     // Load initial bucket
@@ -116,11 +117,14 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
     cudaStream_t lpStream         = cx.computeStream;//B;
     cudaStream_t downloadStream   = cx.gpuDownloadStream[0]->GetStream();
 
-    CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, sortAndMapStream ) );
-    CudaErrCheck( cudaMemsetAsync( s3.devParkOverrunCount, 0, sizeof( uint32 ), sortAndMapStream ) );
+    Log::Line( "Marker Set to %d", 30)
+CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, sortAndMapStream ) );
+    Log::Line( "Marker Set to %d", 31)
+CudaErrCheck( cudaMemsetAsync( s3.devParkOverrunCount, 0, sizeof( uint32 ), sortAndMapStream ) );
 
     // Set initial event LP stream event as set.
-    CudaErrCheck( cudaEventRecord( cx.computeEventA, lpStream ) );
+    Log::Line( "Marker Set to %d", 32)
+CudaErrCheck( cudaEventRecord( cx.computeEventA, lpStream ) );
 
     cx.parkFence->Reset( 0 );
     s3.parkBucket = 0;
@@ -145,23 +149,27 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
         #if _DEBUG
         {
             size_t sortRequiredSize = 0;
-            CudaErrCheck( cub::DeviceRadixSort::SortPairs<uint64, uint32>( nullptr, sortRequiredSize, nullptr, nullptr, nullptr, nullptr, bucketEntryCount, 0, 64 ) );
+            Log::Line( "Marker Set to %d", 33)
+CudaErrCheck( cub::DeviceRadixSort::SortPairs<uint64, uint32>( nullptr, sortRequiredSize, nullptr, nullptr, nullptr, nullptr, bucketEntryCount, 0, 64 ) );
             ASSERT( s3.sizeTmpSort >= sortRequiredSize );
         }
         #endif
 
         // Wait for the previous bucket's LP work to finish, so we can re-use the device buffer
-        CudaErrCheck( cudaStreamWaitEvent( sortAndMapStream, cx.computeEventA ) );
+        Log::Line( "Marker Set to %d", 34)
+CudaErrCheck( cudaStreamWaitEvent( sortAndMapStream, cx.computeEventA ) );
 
         // #TODO: We can use 63-7 (log2(128 buckets)), which might be faster
         // #NOTE: I did change it and the sort failed. Investigate.
-        CudaErrCheck( cub::DeviceRadixSort::SortPairs<uint64, uint32>(
+        Log::Line( "Marker Set to %d", 35)
+CudaErrCheck( cub::DeviceRadixSort::SortPairs<uint64, uint32>(
             s3.devSortTmpData,  s3.sizeTmpSort,
             unsortedLinePoints, sortedLinePoints,
             unsortedIndices,    sortedIndices,
             bucketEntryCount, 0, 64, sortAndMapStream ) );
 
-        CudaErrCheck( cudaEventRecord( cx.computeEventB, sortAndMapStream ) );
+        Log::Line( "Marker Set to %d", 36)
+CudaErrCheck( cudaEventRecord( cx.computeEventB, sortAndMapStream ) );
 
         s3.lpIn   .ReleaseDeviceBuffer( sortAndMapStream ); unsortedLinePoints = nullptr;
         s3.indexIn.ReleaseDeviceBuffer( sortAndMapStream ); unsortedIndices    = nullptr;
@@ -190,12 +198,14 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
         ASSERT( parkCount <= P3_PRUNED_MAX_PARKS_PER_BUCKET );
 
         // Wait for sort to finish
-        CudaErrCheck( cudaStreamWaitEvent( lpStream, cx.computeEventB ) );
+        Log::Line( "Marker Set to %d", 37)
+CudaErrCheck( cudaStreamWaitEvent( lpStream, cx.computeEventB ) );
 
         // Deltafy line points
         DeltafyLinePoints( cx, entryCount, parkLinePoints, s3.devDeltaLinePoints, lpStream );
 
-        CudaErrCheck( cudaEventRecord( cx.computeEventC, lpStream ) );  // Signal download stream can download remaining line points for last park
+        Log::Line( "Marker Set to %d", 38)
+CudaErrCheck( cudaEventRecord( cx.computeEventC, lpStream ) );  // Signal download stream can download remaining line points for last park
 
         // Compress line point parks
         byte* devParks = (byte*)s3.parksOut.LockDeviceBuffer( lpStream );
@@ -214,20 +224,24 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
             if( !isLastBucket )
             {
                 // Not the last bucket, so retain entries for the next GPU compression bucket
-                CudaErrCheck( cudaMemcpyAsync( sortedLinePoints - retainedLPCount, copySource, copySize, cudaMemcpyDeviceToDevice, lpStream ) );
+                Log::Line( "Marker Set to %d", 39)
+CudaErrCheck( cudaMemcpyAsync( sortedLinePoints - retainedLPCount, copySource, copySize, cudaMemcpyDeviceToDevice, lpStream ) );
             }
             else
             {       
                 // No more buckets so we have to compress this last park on the CPU
-                CudaErrCheck( cudaStreamWaitEvent( downloadStream, cx.computeEventC ) );
+                Log::Line( "Marker Set to %d", 40)
+CudaErrCheck( cudaStreamWaitEvent( downloadStream, cx.computeEventC ) );
 
                 hostRetainedEntries = cx.useParkContext ? cx.parkContext->hostRetainedLinePoints :
                                                        (uint64*)( hostParksWriter + hostParkSize * parkCount );
-                CudaErrCheck( cudaMemcpyAsync( hostRetainedEntries, copySource, copySize, cudaMemcpyDeviceToHost, downloadStream ) );
+                Log::Line( "Marker Set to %d", 41)
+CudaErrCheck( cudaMemcpyAsync( hostRetainedEntries, copySource, copySize, cudaMemcpyDeviceToHost, downloadStream ) );
             }
         }
 
-        CudaErrCheck( cudaEventRecord( cx.computeEventA, lpStream ) );  // Signal sortedLinePoints buffer ready for use again
+        Log::Line( "Marker Set to %d", 42)
+CudaErrCheck( cudaEventRecord( cx.computeEventA, lpStream ) );  // Signal sortedLinePoints buffer ready for use again
 
 
         // Download parks
@@ -270,17 +284,20 @@ void CudaK32PlotPhase3Step3( CudaK32PlotContext& cx )
     }
 
     // Copy park overrun count
-    CudaErrCheck( cudaMemcpyAsync( s3.hostParkOverrunCount, s3.devParkOverrunCount, sizeof( uint32 ), cudaMemcpyDeviceToHost, downloadStream ) );
+    Log::Line( "Marker Set to %d", 43)
+CudaErrCheck( cudaMemcpyAsync( s3.hostParkOverrunCount, s3.devParkOverrunCount, sizeof( uint32 ), cudaMemcpyDeviceToHost, downloadStream ) );
 
     // Wait for parks to complete downloading
     s3.parksOut.WaitForCompletion();
     s3.parksOut.Reset();
 
     // Copy map slice counts (for the next step 2)
-    CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
+    Log::Line( "Marker Set to %d", 44)
+CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
                     cudaMemcpyDeviceToHost, downloadStream ) );
 
-    CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
+    Log::Line( "Marker Set to %d", 45)
+CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
     memcpy( &s3.prunedBucketSlices[0][0], cx.hostBucketSlices, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT );
 
     FatalIf( *s3.hostParkOverrunCount > 0, "Park buffer overrun." );

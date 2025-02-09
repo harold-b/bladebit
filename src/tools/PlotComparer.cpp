@@ -376,14 +376,14 @@ void TestTable( FilePlot& ref, FilePlot& tgt, TableId table )
     if( table == TableId::Table1 && tgt.CompressionLevel() > 0 )
         return;
 
-    if( table == TableId::Table2 && tgt.CompressionLevel() >= 9 )
+    if( table == TableId::Table2 && tgt.CompressionLevel() >= 40 )
         return;
 
     // if( table == TableId::Table7 ) return;
 
     Log::Line( "Reading Table %u...", table+1 );
 
-    const uint32 numTablesDropped = tgt.CompressionLevel() >= 9 ? 2 :
+    const uint32 numTablesDropped = tgt.CompressionLevel() >= 40 ? 2 :
                                     tgt.CompressionLevel() >= 1 ? 1 : 0;
 
     const size_t parkSize = table < TableId::Table7 ? 

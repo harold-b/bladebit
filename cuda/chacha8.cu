@@ -201,8 +201,10 @@ void GenF1Cuda( CudaK32PlotContext& cx )
     chacha8_ctx chacha;
     chacha8_keysetup( &chacha, key, 256, nullptr );
     
-    CudaErrCheck( cudaMemcpyAsync( devChaChaInput, chacha.input, 64, cudaMemcpyHostToDevice, cx.computeStream ) );
-    CudaErrCheck( cudaMemsetAsync( devBucketCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 94)
+CudaErrCheck( cudaMemcpyAsync( devChaChaInput, chacha.input, 64, cudaMemcpyHostToDevice, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 95)
+CudaErrCheck( cudaMemsetAsync( devBucketCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
    
     const uint32 outIndex = CudaK32PlotGetOutputIndex( cx );
 
@@ -218,7 +220,8 @@ void GenF1Cuda( CudaK32PlotContext& cx )
         uint32* devMeta = (uint32*)cx.metaOut.LockDeviceBuffer( cx.computeStream );
 
         #if _DEBUG
-            CudaErrCheck( cudaMemsetAsync( devY, 0, sizeof( uint32 ) * BBCU_BUCKET_ALLOC_ENTRY_COUNT, cx.computeStream ) );
+            Log::Line( "Marker Set to %d", 96)
+CudaErrCheck( cudaMemsetAsync( devY, 0, sizeof( uint32 ) * BBCU_BUCKET_ALLOC_ENTRY_COUNT, cx.computeStream ) );
         #endif
 
         // Gen chacha blocks
@@ -229,10 +232,12 @@ void GenF1Cuda( CudaK32PlotContext& cx )
     }
 
     // Copy bucket slices to host
-    CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, 
+    Log::Line( "Marker Set to %d", 97)
+CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
                         cudaMemcpyDeviceToHost, cx.computeStream ) );
 
-    CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 98)
+CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
 
     memcpy( &cx.bucketSlices[0], cx.hostBucketSlices, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT );
 
@@ -293,7 +298,6 @@ static void DbgValidateBucket( CudaK32PlotContext& cx, const uint32 bucket )
     if( _dbgPool == nullptr )
         _dbgPool = new ThreadPool( SysHost::GetLogicalCPUCount() );
 
-    //CudaErrCheck( cudaStreamSynchronize( cx.downloadStream ) );
 
     Log::Line( "Validating bucket %u", bucket );
     AnonMTJob::Run( *_dbgPool, [&cx, bucket]( AnonMTJob* self ) {

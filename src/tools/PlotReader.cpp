@@ -439,7 +439,7 @@ TableId PlotReader::GetLowestStoredTable() const
     const uint32 compressionLevel = _plot.CompressionLevel();
 
     const uint32 numDroppedTables = compressionLevel == 0 ? 0 :
-                                    compressionLevel >= 9 ? 2 : 1;
+                                    compressionLevel >= 40 ? 2 : 1;
 
     return TableId::Table1 + numDroppedTables;
 }
@@ -732,7 +732,7 @@ ProofFetchResult PlotReader::DecompressProof( const uint64 compressedProof[BB_PL
     req.plotId           = _plot.PlotId();
     req.compressionLevel = compressionLevel;
 
-    const uint32 compressedProofCount = compressionLevel < 9 ? PROOF_X_COUNT / 2 : PROOF_X_COUNT / 4;
+    const uint32 compressedProofCount = compressionLevel < 40 ? PROOF_X_COUNT / 2 : PROOF_X_COUNT / 4;
 
     for( uint32 i = 0; i < compressedProofCount; i++ )
         req.compressedProof[i] = compressedProof[i];

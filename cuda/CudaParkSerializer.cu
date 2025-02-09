@@ -20,8 +20,10 @@ void InitFSEBitMask( CudaK32PlotContext& cx )
         0x3FFFFFFF, 0x7FFFFFFF
     };
 
-    CudaErrCheck( cudaMemcpyToSymbolAsync( CUDA_FSE_BIT_mask, bitmask, sizeof( bitmask ), 0, cudaMemcpyHostToDevice, cx.computeStream ) );
-    CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 3)
+CudaErrCheck( cudaMemcpyToSymbolAsync( CUDA_FSE_BIT_mask, bitmask, sizeof( bitmask ), 0, cudaMemcpyHostToDevice, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 4)
+CudaErrCheck( cudaStreamSynchronize( cx.computeStream ) );
 }
 
 

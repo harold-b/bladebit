@@ -106,7 +106,65 @@ struct CompressionLevelInfo<9>
     static constexpr double   ANS_R_VALUE     = 4.54;
 };
 
+template<>
+struct CompressionLevelInfo<10>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 7;
+    static constexpr uint32_t STUB_BIT_SIZE   = 26;
+    static constexpr size_t   TABLE_PARK_SIZE = 7896;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
 
+template<>
+struct CompressionLevelInfo<11>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 6;
+    static constexpr uint32_t STUB_BIT_SIZE   = 22;
+    static constexpr size_t   TABLE_PARK_SIZE = 6930;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
 
+template<>
+struct CompressionLevelInfo<12>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 5;
+    static constexpr uint32_t STUB_BIT_SIZE   = 18;
+    static constexpr size_t   TABLE_PARK_SIZE = 5953;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
 
+template<>
+struct CompressionLevelInfo<13>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 4;
+    static constexpr uint32_t STUB_BIT_SIZE   = 14;
+    static constexpr size_t   TABLE_PARK_SIZE = 4956;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
 
+template<>
+struct CompressionLevelInfo<14>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 3;
+    static constexpr uint32_t STUB_BIT_SIZE   = 10;
+    static constexpr size_t   TABLE_PARK_SIZE = 3944;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
+
+template<>
+struct CompressionLevelInfo<15>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 2;
+    static constexpr uint32_t STUB_BIT_SIZE   = 6;
+    static constexpr size_t   TABLE_PARK_SIZE = 2930;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};
+
+template<>
+struct CompressionLevelInfo<16>
+{
+    static constexpr uint32_t ENTRY_SIZE      = 1;
+    static constexpr uint32_t STUB_BIT_SIZE   = 2;
+    static constexpr size_t   TABLE_PARK_SIZE = 1913;
+    static constexpr double   ANS_R_VALUE     = 4.54;
+};

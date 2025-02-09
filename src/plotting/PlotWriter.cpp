@@ -95,7 +95,7 @@ bool PlotWriter::BeginPlotInternal( PlotVersion version,
     if( !plotMemo || !plotMemoSize )
         return false;
 
-    ASSERT( compressionLevel >= 0 && compressionLevel <= 9 );
+    ASSERT( compressionLevel >= 0 && compressionLevel <= 40 );
 
     if( compressionLevel > 0 && version < PlotVersion::v2_0 )
         return false;

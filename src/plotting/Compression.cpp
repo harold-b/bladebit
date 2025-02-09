@@ -83,7 +83,14 @@ CompressionInfo GetCompressionInfoForLevel( const uint32 compressionLevel )
         case 7: GetCompressionInfoForLevel<7>( info ); break;
         case 8: GetCompressionInfoForLevel<8>( info ); break;
         case 9: GetCompressionInfoForLevel<9>( info ); break;
-    
+        case 10: GetCompressionInfoForLevel<10>( info ); break;
+        case 11: GetCompressionInfoForLevel<11>( info ); break;
+        case 12: GetCompressionInfoForLevel<12>( info ); break;
+        case 13: GetCompressionInfoForLevel<13>( info ); break;
+        case 14: GetCompressionInfoForLevel<14>( info ); break;
+        case 15: GetCompressionInfoForLevel<15>( info ); break;
+        case 16: GetCompressionInfoForLevel<16>( info ); break;
+
     default:
         Fatal( "Invalid compression level %u.", compressionLevel );
         break;
@@ -96,6 +103,7 @@ void* CreateCompressionTable( const uint32 compressionLevel, size_t* outTableSiz
 {
     switch ( compressionLevel )
     {
+
         case 1: return CreateCompressionCTable<1>( outTableSize, compress );
         case 2: return CreateCompressionCTable<2>( outTableSize, compress );
         case 3: return CreateCompressionCTable<3>( outTableSize, compress );
@@ -105,6 +113,13 @@ void* CreateCompressionTable( const uint32 compressionLevel, size_t* outTableSiz
         case 7: return CreateCompressionCTable<7>( outTableSize, compress );
         case 8: return CreateCompressionCTable<8>( outTableSize, compress );
         case 9: return CreateCompressionCTable<9>( outTableSize, compress );
+        case 10: return CreateCompressionCTable<10>( outTableSize, compress );
+        case 11: return CreateCompressionCTable<11>( outTableSize, compress );
+        case 12: return CreateCompressionCTable<12>( outTableSize, compress );
+        case 13: return CreateCompressionCTable<13>( outTableSize, compress );
+        case 14: return CreateCompressionCTable<14>( outTableSize, compress );
+        case 15: return CreateCompressionCTable<15>( outTableSize, compress );
+        case 16: return CreateCompressionCTable<16>( outTableSize, compress );
     
         default:
         break;
@@ -146,14 +161,22 @@ uint32 GetCompressedLPBitCount( const uint32 compressionLevel )
 size_t GetLargestCompressedParkSize()
 {
     return std::max( {
-        GetCompressionInfoForLevel( 1 ).tableParkSize,
-        GetCompressionInfoForLevel( 2 ).tableParkSize,
-        GetCompressionInfoForLevel( 3 ).tableParkSize,
-        GetCompressionInfoForLevel( 4 ).tableParkSize,
-        GetCompressionInfoForLevel( 5 ).tableParkSize,
-        GetCompressionInfoForLevel( 6 ).tableParkSize,
-        GetCompressionInfoForLevel( 7 ).tableParkSize,
-        GetCompressionInfoForLevel( 8 ).tableParkSize,
-        GetCompressionInfoForLevel( 9 ).tableParkSize }
+       GetCompressionInfoForLevel( 1 ).tableParkSize,
+       GetCompressionInfoForLevel( 2 ).tableParkSize,
+       GetCompressionInfoForLevel( 3 ).tableParkSize,
+       GetCompressionInfoForLevel( 4 ).tableParkSize,
+       GetCompressionInfoForLevel( 5 ).tableParkSize,
+       GetCompressionInfoForLevel( 6 ).tableParkSize,
+       GetCompressionInfoForLevel( 7 ).tableParkSize,
+       GetCompressionInfoForLevel( 8 ).tableParkSize,
+       GetCompressionInfoForLevel( 9 ).tableParkSize,
+       GetCompressionInfoForLevel( 10 ).tableParkSize,
+       GetCompressionInfoForLevel( 11 ).tableParkSize,
+       GetCompressionInfoForLevel( 12 ).tableParkSize,
+       GetCompressionInfoForLevel( 13 ).tableParkSize,
+       GetCompressionInfoForLevel( 14 ).tableParkSize,
+       GetCompressionInfoForLevel( 15 ).tableParkSize,
+       GetCompressionInfoForLevel( 16 ).tableParkSize
+         }
     );
 }

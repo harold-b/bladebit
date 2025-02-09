@@ -374,12 +374,14 @@ void Step1( CudaK32PlotContext& cx )
     const TableId rTable = cx.table;
 
     // Clear pruned table count
-    CudaErrCheck( cudaMemsetAsync( p3.devPrunedEntryCount, 0, sizeof( uint32 ), cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 12)
+CudaErrCheck( cudaMemsetAsync( p3.devPrunedEntryCount, 0, sizeof( uint32 ), cx.computeStream ) );
 
     // Load marking table (must be loaded before first bucket, on the same stream)
     if( cx.table < TableId::Table7 )
     {
-        CudaErrCheck( cudaMemcpyAsync( s1.rTableMarks, cx.hostMarkingTables[(int)rTable],
+        Log::Line( "Marker Set to %d", 13)
+CudaErrCheck( cudaMemcpyAsync( s1.rTableMarks, cx.hostMarkingTables[(int)rTable],
                         GetMarkingTableBitFieldSize(), cudaMemcpyHostToDevice, s1.pairsLIn.GetQueue()->GetStream() ) );
     }
 
@@ -416,7 +418,8 @@ void Step1( CudaK32PlotContext& cx )
         // Generate map
         #define KERN_RMAP_ARGS entryCount, rTableOffset, devSliceCounts, p3.devPrunedEntryCount, devRMap, devLPairs, devRPairs, s1.rTableMarks
 
-        CudaErrCheck( cudaMemsetAsync( devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT, cx.computeStream ) );
+        Log::Line( "Marker Set to %d", 14)
+CudaErrCheck( cudaMemsetAsync( devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT, cx.computeStream ) );
 
         if( cx.table < TableId::Table7 )
             PruneAndWriteRMap<true><<<blocksPerGrid, threadPerBlock, 0, cx.computeStream>>>( KERN_RMAP_ARGS );
@@ -436,7 +439,8 @@ void Step1( CudaK32PlotContext& cx )
     // Download slice counts
     cudaStream_t downloadStream = s1.rMapOut.GetQueue()->GetStream();
 
-    CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, 
+    Log::Line( "Marker Set to %d", 15)
+CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
                     cudaMemcpyDeviceToHost, downloadStream ) );
 
     // Wait for completion
@@ -446,7 +450,8 @@ void Step1( CudaK32PlotContext& cx )
     s1.pairsLIn.Reset();
     s1.pairsRIn.Reset();
 
-    CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
+    Log::Line( "Marker Set to %d", 16)
+CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
 
     // Add-up pruned bucket counts and tables counts
     memcpy( &s1.prunedBucketSlices[0][0], cx.hostBucketSlices, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT );
@@ -521,7 +526,8 @@ void CompressInlinedTable( CudaK32PlotContext& cx )
     #endif
 
     // Load R Marking table (must be loaded before first bucket, on the same stream)
-    CudaErrCheck( cudaMemcpyAsync( (void*)tx.devRMarks, cx.hostMarkingTables[(int)rTable],
+    Log::Line( "Marker Set to %d", 17)
+CudaErrCheck( cudaMemcpyAsync( (void*)tx.devRMarks, cx.hostMarkingTables[(int)rTable],
                 GetMarkingTableBitFieldSize(), cudaMemcpyHostToDevice, p3.xTable.xIn.GetQueue()->GetStream() ) );
 
     // Load initial bucket
@@ -536,7 +542,8 @@ void CompressInlinedTable( CudaK32PlotContext& cx )
     uint64 tablePrunedEntryCount = 0;
     uint32 rTableOffset          = 0;
 
-    CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 18)
+CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
 
     for( uint32 bucket = 0; bucket < BBCU_BUCKET_COUNT; bucket++ )
     {
@@ -559,7 +566,8 @@ void CompressInlinedTable( CudaK32PlotContext& cx )
         uint32* devSliceCounts = cx.devSliceCounts + bucket * BBCU_BUCKET_COUNT;
 
         #if _DEBUG
-            CudaErrCheck( cudaMemsetAsync( outLps, 0, sizeof( uint64 ) * P3_PRUNED_BUCKET_MAX, cx.computeStream ) );
+            Log::Line( "Marker Set to %d", 19)
+CudaErrCheck( cudaMemsetAsync( outLps, 0, sizeof( uint64 ) * P3_PRUNED_BUCKET_MAX, cx.computeStream ) );
         #endif
 
         CudaConvertInlinedXsToLinePoints<<<blocksPerGrid, threadPerBlock, 0, cx.computeStream>>>(

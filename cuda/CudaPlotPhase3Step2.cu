@@ -148,7 +148,8 @@ static void ConvertRMapToLinePoints( CudaK32PlotContext& cx, const uint32 entryC
             const uint64 divisor          = P3_CalculateMaxLPValue( prunedEntryCount ) / BBCU_BUCKET_COUNT;
 
             // #TODO: Use upload stream?
-            CudaErrCheck( cudaMemcpyToSymbolAsync( BucketDivisor, &divisor, sizeof( divisor ), 0, cudaMemcpyHostToDevice, cx.computeStream ) );
+            Log::Line( "Marker Set to %d", 20)
+CudaErrCheck( cudaMemcpyToSymbolAsync( BucketDivisor, &divisor, sizeof( divisor ), 0, cudaMemcpyHostToDevice, cx.computeStream ) );
         }
 
         CudaConvertRMapToLinePoints<false><<<blocks, threads, 0, stream>>>( Rmap2LPParams, 0 );
@@ -223,7 +224,8 @@ void CudaK32PlotPhase3Step2( CudaK32PlotContext& cx )
         if( isCompressed )
         {
             // Copy from upload buffer to working buffer
-            CudaErrCheck( cudaMemcpyAsync( lTable, lMap, BBCU_BUCKET_ENTRY_COUNT * sizeof( uint32 ), cudaMemcpyDeviceToDevice, cx.computeStream ) );
+            Log::Line( "Marker Set to %d", 21)
+CudaErrCheck( cudaMemcpyAsync( lTable, lMap, BBCU_BUCKET_ENTRY_COUNT * sizeof( uint32 ), cudaMemcpyDeviceToDevice, cx.computeStream ) );
         }
         else
         {
@@ -264,7 +266,8 @@ void CudaK32PlotPhase3Step2( CudaK32PlotContext& cx )
     LoadRBucket( cx, 0 );
 
     // Clear pruned entry count
-    CudaErrCheck( cudaMemsetAsync( p3.devPrunedEntryCount, 0, sizeof( uint32 ), cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 22)
+CudaErrCheck( cudaMemsetAsync( p3.devPrunedEntryCount, 0, sizeof( uint32 ), cx.computeStream ) );
 
     // Unpack the first map beforehand
     UnpackLBucket( cx, 0 );
@@ -275,7 +278,8 @@ void CudaK32PlotPhase3Step2( CudaK32PlotContext& cx )
     /// 
     uint32 rTableOffset = 0; // Track the global origin index of R entry/line point 
 
-    CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
+    Log::Line( "Marker Set to %d", 23)
+CudaErrCheck( cudaMemsetAsync( cx.devSliceCounts, 0, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT, cx.computeStream ) );
 
     for( uint32 bucket = 0; bucket < BBCU_BUCKET_COUNT; bucket++ )
     {
@@ -298,7 +302,8 @@ void CudaK32PlotPhase3Step2( CudaK32PlotContext& cx )
             static_assert( BBCU_BUCKET_ALLOC_ENTRY_COUNT - BBCU_BUCKET_ENTRY_COUNT == copyCount );
 
             uint32* nextLTable = s2.devLTable[nextBucket & 1];
-            CudaErrCheck( cudaMemcpyAsync( (uint32*)devLTable + BBCU_BUCKET_ENTRY_COUNT, nextLTable, copyCount * sizeof( uint32 ), cudaMemcpyDeviceToDevice, cx.computeStream ) );
+            Log::Line( "Marker Set to %d", 24)
+CudaErrCheck( cudaMemcpyAsync( (uint32*)devLTable + BBCU_BUCKET_ENTRY_COUNT, nextLTable, copyCount * sizeof( uint32 ), cudaMemcpyDeviceToDevice, cx.computeStream ) );
         }
 
         if( nextBucketL < BBCU_BUCKET_COUNT )
@@ -351,12 +356,14 @@ void CudaK32PlotPhase3Step2( CudaK32PlotContext& cx )
     // Copy slice counts & bucket count
     cudaStream_t downloadStream = s2.lpOut.GetQueue()->GetStream();
 
-    CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
+    Log::Line( "Marker Set to %d", 25)
+CudaErrCheck( cudaMemcpyAsync( cx.hostBucketSlices, cx.devSliceCounts, sizeof( uint32 ) * BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT,
                     cudaMemcpyDeviceToHost, downloadStream ) );
 
     memset( p3.prunedBucketCounts[(int)rTable], 0, BBCU_BUCKET_COUNT * sizeof( uint32 ) );
 
-    CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
+    Log::Line( "Marker Set to %d", 26)
+CudaErrCheck( cudaStreamSynchronize( downloadStream ) );
     bbmemcpy_t( &s2.prunedBucketSlices[0][0], cx.hostBucketSlices, BBCU_BUCKET_COUNT * BBCU_BUCKET_COUNT );
     for( uint32 bucket = 0; bucket < BBCU_BUCKET_COUNT; bucket++ )
     {
@@ -481,9 +488,11 @@ void WritePark7( CudaK32PlotContext& cx )
             const size_t  copySize             = sizeof( uint32 ) * retainedEntryCount;
 
             if( !isLastBucket )
-                CudaErrCheck( cudaMemcpyAsync( devIndexBuffer - retainedEntryCount, copySource, copySize, cudaMemcpyDeviceToDevice, cx.computeStream ) );
+                Log::Line( "Marker Set to %d", 27)
+CudaErrCheck( cudaMemcpyAsync( devIndexBuffer - retainedEntryCount, copySource, copySize, cudaMemcpyDeviceToDevice, cx.computeStream ) );
             else
-                CudaErrCheck( cudaMemcpyAsync( hostLastParkEntries, copySource, copySize, cudaMemcpyDeviceToHost, cx.computeStream ) );
+                Log::Line( "Marker Set to %d", 28)
+CudaErrCheck( cudaMemcpyAsync( hostLastParkEntries, copySource, copySize, cudaMemcpyDeviceToHost, cx.computeStream ) );
         }
 
         // Download parks & write to plot
